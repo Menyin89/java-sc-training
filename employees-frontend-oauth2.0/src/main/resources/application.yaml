@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+            keycloak:
+                client-id: employees-frontend # Ennek a keycloak-ban a Clientsnél felvett értékkel kell megyegyeznie
+                authorization-grant-type: authorization_code
+                scope: openid, profile, email
+        provider:
+            keycloak:
+                issuer-uri: http://localhost:8090/realms/EmployeesRealm # A Keycloak szerver URL-je és a realm neve
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+logging:
+  level:
+    employees: DEBUG
+    org.hibernate.SQL: TRACE
+
+employees:
+  backend-url: http://localhost:8081
