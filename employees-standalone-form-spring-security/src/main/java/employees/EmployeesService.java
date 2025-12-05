@@ -2,6 +2,9 @@ package employees;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,14 +17,18 @@ public class EmployeesService {
 
     private final EmployeesRepository repository;
 
+    //@PostFilter("T(java.lang.Character).isUpperCase(filterObject.name.charAt(0))") // A válaszból kiszűri azokat, amelyekre nem igaz a feltétel
+    @PostFilter("filterObject.name.contains(authentication.name)") // Csak azokat engedi visszaadni, amiknek a nevében benne van a bejelentkezett user neve
     public List<EmployeeModel> listEmployees() {
         return repository.findAllResources();
     }
 
+    @PostAuthorize("T(java.lang.Character).isUpperCase(returnObject.name.charAt(0))") // Csak zt engedi megnézni, ami nagybetűvel kezdődik
     public EmployeeModel findEmployeeById(long id) {
         return toDto(repository.findById(id).orElseThrow(notFountException(id)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public EmployeeModel createEmployee(EmployeeModel command) {
         var employee = new Employee(command.name());
         repository.save(employee);
